@@ -2,34 +2,9 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
-
-typedef enum {
-    IF,
-    THEN,
-    ELSE,
-    END,
-    REPEAT,
-    UNTIL,
-    READ,
-    WRITE,
-    ID,
-    NUM,
-    ASSIGN,
-    RELOP,
-    PLUS,
-    MINUS,
-    TIMES,
-    OVER,
-    LPAREN,
-    RPAREN,
-    SEMI,
-    DELIMETER,
-    COMMENT
-} TokenType;
+#include "tokens.h"
 
 void printToken(TokenType token, const char *attr) {
-    const char *tokenNames[] = {
-        "IF", "THEN", "ELSE", "END", "REPEAT", "UNTIL", "READ", "WRITE", "ID", "NUM", "ASSIGN", "RELOP", "PLUS", "MINUS", "TIMES", "OVER", "LPAREN", "RPAREN", "SEMI", "DELIMETER", "COMMENT"};
     printf("%s\t%s\n", tokenNames[token], attr);
 }
 
@@ -224,6 +199,9 @@ void processFile(const char *filePath) {
     }
 
     fclose(file);
+
+    // 输出 DOLLAR 符号，表示输入结束
+    printToken(DOLLAR, "$");
 
     // Print annotations
     printf("Annotations :\n%s", annotations);

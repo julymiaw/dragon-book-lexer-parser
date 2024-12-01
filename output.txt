@@ -1,0 +1,37 @@
+READ	
+ID	1
+SEMI	;
+IF	
+NUM	0.000000
+RELOP	<
+ID	1
+THEN	
+ID	2
+ASSIGN	:=
+NUM	1.000000
+SEMI	;
+REPEAT	
+ID	2
+ASSIGN	:=
+ID	2
+TIMES	*
+ID	3
+SEMI	;
+ID	1
+ASSIGN	:=
+ID	1
+MINUS	-
+NUM	1.000000
+UNTIL	
+ID	1
+RELOP	=
+NUM	0.000000
+SEMI	;
+WRITE	
+ID	2
+END	
+DOLLAR	$
+Annotations :
+// input x
+/* compute when x>0 */
+//output fact
