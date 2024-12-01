@@ -362,11 +362,11 @@ int main(int argc, char *argv[]) {
 
 上面的代码实现了词法分析器的主要逻辑，包括处理关键字、标识符、数字、运算符、分隔符和注释等。
 
-## 心得体会
+### 心得体会
 
 在实现词法分析器的过程中，我们遇到了多个挑战，特别是在处理多行注释时。以下是我们在处理多行注释时的几个版本的代码以及遇到的问题：
 
-### 初始版本
+#### 初始版本
 
 在初始版本中，我们简单地处理多行注释，假设注释的结束符 `*/` 总是会正确出现。然而，这种假设在实际情况下并不总是成立。
 
@@ -379,7 +379,7 @@ if (c == '*') {
 }
 ```
 
-### 改进版本
+#### 改进版本
 
 在改进版本中，我们增加了对 `EOF` 的检查，以确保在文件结束时能够正确处理未闭合的注释。然而，这个版本仍然存在一个问题：如果多行注释内出现了单个的 `*` 号，其后面不是 `/`，那么会导致这个符号后面的字符丢失。
 
@@ -402,7 +402,7 @@ if (c == '*') {
 }
 ```
 
-### 最终版本
+#### 最终版本
 
 在最终版本中，我们通过使用 `ungetc` 函数来解决上述问题。具体来说，当我们遇到 `*` 号时，会读取下一个字符，如果不是 `/`，则将其放回输入流中。这种方法确保了多行注释内的所有字符都能被正确处理。
 
@@ -427,7 +427,7 @@ if (c == '*') {
 }
 ```
 
-### 短路机制的问题
+#### 短路机制的问题
 
 在处理多行注释时，我们还遇到了C语言的短路机制问题。具体来说，只有当当前字符是 `*` 时，才有可能执行 `fgetc`，并且才需要调用 `ungetc`。这种短路机制导致我们在编写代码时需要特别小心，以确保逻辑的正确性。
 
@@ -444,3 +444,326 @@ if (c == '*') {
 ```
 
 通过这些改进和优化，我们最终实现了一个能够正确处理各种输入的词法分析器。这不仅提高了我们的编程技巧，也加深了我们对编译原理的理解。
+
+## 语法分析
+
+以下是根据之前定义的词法单元构建的文法：
+
+```plaintext
+<program> ::= <stmt_list>
+
+<stmt_list> ::= <stmt> ; <stmt_list> | <stmt>
+
+<stmt> ::= <if_stmt> | <repeat_stmt> | <assign_stmt> | <read_stmt> | <write_stmt>
+
+<if_stmt> ::= IF <exp> THEN <stmt_list> END | IF <exp> THEN <stmt_list> ELSE <stmt_list> END
+
+<repeat_stmt> ::= REPEAT <stmt_list> UNTIL <exp>
+
+<assign_stmt> ::= ID ASSIGN <exp>
+
+<read_stmt> ::= READ ID
+
+<write_stmt> ::= WRITE <exp>
+
+<exp> ::= <simple_exp> <comparison_op> <simple_exp> | <simple_exp>
+
+<comparison_op> ::= RELOP
+
+<simple_exp> ::= <term> <add_op> <simple_exp> | <term>
+
+<add_op> ::= PLUS | MINUS
+
+<term> ::= <factor> <mul_op> <term> | <factor>
+
+<mul_op> ::= TIMES | OVER
+
+<factor> ::= LPAREN <exp> RPAREN | ID | NUM
+```
+
+### 文法分析
+
+在后续的图表中，我们将使用简写符号来表示非终结符和终结符。大写字母代表非终结符，小写字母代表终结符。例如：
+
+- `<program>` 用 `P` 表示
+- `<stmt_list>` 用 `SL` 表示
+- `<stmt>` 用 `S` 表示
+- `<if_stmt>` 用 `I` 表示
+- `<repeat_stmt>` 用 `R` 表示
+- `<assign_stmt>` 用 `A` 表示
+- `<read_stmt>` 用 `RD` 表示
+- `<write_stmt>` 用 `W` 表示
+- `<exp>` 用 `E` 表示
+- `<comparison_op>` 用 `RO` 表示
+- `<simple_exp>` 用 `SE` 表示
+- `<add_op>` 用 `AO` 表示
+- `<term>` 用 `T` 表示
+- `<mul_op>` 用 `MO` 表示
+- `<factor>` 用 `F` 表示
+
+LL(1) 文法需要先提取左公因子。以下是提取左公因子后的文法：
+
+```plaintext
+P -> SL
+
+SL -> S SL'
+
+SL' -> ; SL | ε
+
+S -> I | R | A | RD | W
+
+I -> if E then SL I'
+
+I' -> end | else SL end
+
+R -> repeat SL until E
+
+A -> id := E
+
+RD -> read id
+
+W -> write E
+
+E -> SE E'
+
+E' -> RO SE | ε
+
+RO -> relop
+
+SE -> T SE'
+
+SE' -> AO T SE' | ε
+
+AO -> plus | minus
+
+T -> F T'
+
+T' -> MO F T' | ε
+
+MO -> times | over
+
+F -> ( E ) | id | num
+```
+
+### First 集和 Follow 集
+
+以下是每个非终结符的 First 集和 Follow 集：
+
+<table>
+    <tr>
+        <th>非终结符</th>
+        <th>缩写</th>
+        <th>文法表达式</th>
+        <th>First 集</th>
+        <th>Follow 集</th>
+    </tr>
+    <tr>
+        <td>Program</td>
+        <td>P</td>
+        <td>P -> SL</td>
+        <td>First(SL)</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>StmtList</td>
+        <td>SL</td>
+        <td>SL -> S SL'</td>
+        <td></td>
+        <td>Follow(P)</td>
+    </tr>
+    <tr>
+        <td>StmtList'</td>
+        <td rowspan="2">SL'</td>
+        <td>SL' -> ; SL</td>
+        <td></td>
+        <td rowspan="2"></td>
+    </tr>
+    <tr>
+        <td>StmtList'</td>
+        <td>SL' -> ε</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Stmt</td>
+        <td rowspan="5">S</td>
+        <td>S -> I</td>
+        <td></td>
+        <td rowspan="5"></td>
+    </tr>
+    <tr>
+        <td>Stmt</td>
+        <td>S -> R</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Stmt</td>
+        <td>S -> A</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Stmt</td>
+        <td>S -> RD</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Stmt</td>
+        <td>S -> W</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>IfStmt</td>
+        <td>I</td>
+        <td>I -> if E then SL I'</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>IfStmt'</td>
+        <td rowspan="2">I'</td>
+        <td>I' -> end</td>
+        <td></td>
+        <td rowspan="2"></td>
+    </tr>
+    <tr>
+        <td>IfStmt'</td>
+        <td>I' -> else SL end</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>RepeatStmt</td>
+        <td>R</td>
+        <td>R -> repeat SL until E</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>AssignStmt</td>
+        <td>A</td>
+        <td>A -> id := E</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>ReadStmt</td>
+        <td>RD</td>
+        <td>RD -> read id</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>WriteStmt</td>
+        <td>W</td>
+        <td>W -> write E</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Exp</td>
+        <td>E</td>
+        <td>E -> SE E'</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Exp'</td>
+        <td rowspan="2">E'</td>
+        <td>E' -> RO SE</td>
+        <td></td>
+        <td rowspan="2"></td>
+    </tr>
+    <tr>
+        <td>Exp'</td>
+        <td>E' -> ε</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>RelOp</td>
+        <td>RO</td>
+        <td>RO -> relop</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>SimpleExp</td>
+        <td rowspan="3">SE</td>
+        <td>SE -> T SE'</td>
+        <td></td>
+        <td rowspan="3"></td>
+    </tr>
+    <tr>
+        <td>SimpleExp</td>
+        <td>SE' -> AO T SE'</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>SimpleExp</td>
+        <td>SE' -> ε</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>AddOp</td>
+        <td>AO</td>
+        <td>AO -> plus</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>AddOp</td>
+        <td>AO</td>
+        <td>AO -> minus</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Term</td>
+        <td rowspan="3">T</td>
+        <td>T -> F T'</td>
+        <td></td>
+        <td rowspan="3"></td>
+    </tr>
+    <tr>
+        <td>Term</td>
+        <td>T' -> MO F T'</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Term</td>
+        <td>T' -> ε</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>MulOp</td>
+        <td>MO</td>
+        <td>MO -> times</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>MulOp</td>
+        <td>MO</td>
+        <td>MO -> over</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Factor</td>
+        <td rowspan="3">F</td>
+        <td>F -> ( E )</td>
+        <td></td>
+        <td rowspan="3"></td>
+    </tr>
+    <tr>
+        <td>Factor</td>
+        <td>F -> id</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Factor</td>
+        <td>F -> num</td>
+        <td></td>
+    </tr>
+</table>
+
+## LL(1) 分析表
+
+以下是根据之前定义的 LL(1) 文法构建的 LL(1) 分析表：

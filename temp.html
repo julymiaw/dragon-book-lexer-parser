@@ -1,0 +1,176 @@
+<table>
+    <tr>
+        <th>非终结符</th>
+        <th>文法表达式</th>
+        <th>First 集</th>
+        <th>Follow 集</th>
+    </tr>
+    <tr>
+        <td>P</td>
+        <td>P -> SL</td>
+        <td>if, repeat, id, read, write</td>
+        <td>$</td>
+    </tr>
+    <tr>
+        <td rowspan="3">SL</td>
+        <td>SL -> S SL'</td>
+        <td>if, repeat, id, read, write</td>
+        <td rowspan="3">end, until, else, $</td>
+    </tr>
+    <tr>
+        <td>SL' -> ; SL</td>
+        <td>;</td>
+    </tr>
+    <tr>
+        <td>SL' -> ε</td>
+        <td>end, until, else, $</td>
+    </tr>
+    <tr>
+        <td rowspan="5">S</td>
+        <td>S -> I</td>
+        <td>if</td>
+        <td rowspan="5">;, end, until, else, $</td>
+    </tr>
+    <tr>
+        <td>S -> R</td>
+        <td>repeat</td>
+    </tr>
+    <tr>
+        <td>S -> A</td>
+        <td>id</td>
+    </tr>
+    <tr>
+        <td>S -> RD</td>
+        <td>read</td>
+    </tr>
+    <tr>
+        <td>S -> W</td>
+        <td>write</td>
+    </tr>
+    <tr>
+        <td>I</td>
+        <td>I -> if E then SL I'</td>
+        <td>if</td>
+        <td>;, end, until, else, $</td>
+    </tr>
+    <tr>
+        <td rowspan="2">I'</td>
+        <td>I' -> end</td>
+        <td>end</td>
+        <td rowspan="2">;, end, until, else, $</td>
+    </tr>
+    <tr>
+        <td>I' -> else SL end</td>
+        <td>else</td>
+    </tr>
+    <tr>
+        <td>R</td>
+        <td>R -> repeat SL until E</td>
+        <td>repeat</td>
+        <td>;, end, until, else, $</td>
+    </tr>
+    <tr>
+        <td>A</td>
+        <td>A -> id := E</td>
+        <td>id</td>
+        <td>;, end, until, else, $</td>
+    </tr>
+    <tr>
+        <td>RD</td>
+        <td>RD -> read id</td>
+        <td>read</td>
+        <td>;, end, until, else, $</td>
+    </tr>
+    <tr>
+        <td>W</td>
+        <td>W -> write E</td>
+        <td>write</td>
+        <td>;, end, until, else, $</td>
+    </tr>
+    <tr>
+        <td rowspan="3">E</td>
+        <td>E -> SE E'</td>
+        <td>(, id, num</td>
+        <td rowspan="3">), then, end, else, until, relop, plus, minus, times, over, $</td>
+    </tr>
+    <tr>
+        <td>E' -> RO SE</td>
+        <td>relop</td>
+    </tr>
+    <tr>
+        <td>E' -> ε</td>
+        <td>), then, end, else, until, relop, plus, minus, times, over, $</td>
+    </tr>
+    <tr>
+        <td>RO</td>
+        <td>RO -> relop</td>
+        <td>relop</td>
+        <td>(, id, num</td>
+    </tr>
+    <tr>
+        <td rowspan="3">SE</td>
+        <td>SE -> T SE'</td>
+        <td>(, id, num</td>
+        <td rowspan="3">), then, end, else, until, relop, plus, minus, times, over, $</td>
+    </tr>
+    <tr>
+        <td>SE' -> AO T SE'</td>
+        <td>plus, minus</td>
+    </tr>
+    <tr>
+        <td>SE' -> ε</td>
+        <td>), then, end, else, until, relop, plus, minus, times, over, $</td>
+    </tr>
+    <tr>
+        <td>AO</td>
+        <td>AO -> plus</td>
+        <td>plus</td>
+        <td>(, id, num</td>
+    </tr>
+    <tr>
+        <td>AO</td>
+        <td>AO -> minus</td>
+        <td>minus</td>
+        <td>(, id, num</td>
+    </tr>
+    <tr>
+        <td rowspan="3">T</td>
+        <td>T -> F T'</td>
+        <td>(, id, num</td>
+        <td rowspan="3">), then, end, else, until, relop, plus, minus, times, over, $</td>
+    </tr>
+    <tr>
+        <td>T' -> MO F T'</td>
+        <td>times, over</td>
+    </tr>
+    <tr>
+        <td>T' -> ε</td>
+        <td>), then, end, else, until, relop, plus, minus, times, over, $</td>
+    </tr>
+    <tr>
+        <td>MO</td>
+        <td>MO -> times</td>
+        <td>times</td>
+        <td>(, id, num</td>
+    </tr>
+    <tr>
+        <td>MO</td>
+        <td>MO -> over</td>
+        <td>over</td>
+        <td>(, id, num</td>
+    </tr>
+    <tr>
+        <td rowspan="3">F</td>
+        <td>F -> ( E )</td>
+        <td>(</td>
+        <td rowspan="3">), then, end, else, until, relop, plus, minus, times, over, $</td>
+    </tr>
+    <tr>
+        <td>F -> id</td>
+        <td>id</td>
+    </tr>
+    <tr>
+        <td>F -> num</td>
+        <td>num</td>
+    </tr>
+</table>
