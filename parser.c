@@ -17,6 +17,38 @@ Token tokens[MAX_TOKENS];
 int tokenIndex = 0;
 int currentToken = 0;
 
+typedef struct ASTNode {
+    char label[256];
+    struct ASTNode *children[5];
+    int childCount;
+} ASTNode;
+
+ASTNode *createNode(const char *label) {
+    ASTNode *node = (ASTNode *)malloc(sizeof(ASTNode));
+    strcpy(node->label, label);
+    node->childCount = 0;
+    return node;
+}
+
+void addChild(ASTNode *parent, ASTNode *child) {
+    if (parent->childCount < 5) {
+        parent->children[parent->childCount++] = child;
+    } else {
+        printf("错误：节点的子节点超过5个\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void printAST(ASTNode *node, FILE *file) {
+    if (node == NULL)
+        return;
+    fprintf(file, "\"%p\" [label=\"%s\"];\n", node, node->label);
+    for (int i = 0; i < node->childCount; i++) {
+        fprintf(file, "\"%p\" -> \"%p\";\n", node, node->children[i]);
+        printAST(node->children[i], file);
+    }
+}
+
 // 从词法分析器的输出文件中读取 tokens
 void readTokens(const char *filePath) {
     FILE *file = fopen(filePath, "r");
@@ -111,12 +143,19 @@ TokenType getToken() {
 }
 
 // 匹配并消耗期望的词法单元
-void match(TokenType expected) {
+ASTNode *match(TokenType expected) {
     if (getToken() == expected) {
         if (debug) {
             printf("匹配：%s\n", tokenNames[expected]);
         }
+        ASTNode *node = createNode(tokenNames[expected]);
+        if (tokens[currentToken].attr[0] != '\0') {
+            char label[512]; // 增加缓冲区大小
+            snprintf(label, sizeof(label), "%s: %s", tokenNames[expected], tokens[currentToken].attr);
+            strcpy(node->label, label);
+        }
         currentToken++;
+        return node;
     } else {
         printf("语法错误：期望 %d，得到 %d\n", expected, getToken());
         exit(EXIT_FAILURE);
@@ -124,33 +163,34 @@ void match(TokenType expected) {
 }
 
 // 递归下降解析函数声明
-void Program();
-void StmtList();
-void StmtListPrime();
-void Stmt();
-void IfStmt();
-void IfStmtPrime();
-void RepeatStmt();
-void AssignStmt();
-void ReadStmt();
-void WriteStmt();
-void Exp();
-void ExpPrime();
-void RelOp();
-void SimpleExp();
-void SimpleExpPrime();
-void AddOp();
-void Term();
-void TermPrime();
-void MulOp();
-void Factor();
+ASTNode *Program();
+ASTNode *StmtList();
+ASTNode *StmtListPrime();
+ASTNode *Stmt();
+ASTNode *IfStmt();
+ASTNode *IfStmtPrime();
+ASTNode *RepeatStmt();
+ASTNode *AssignStmt();
+ASTNode *ReadStmt();
+ASTNode *WriteStmt();
+ASTNode *Exp();
+ASTNode *ExpPrime();
+ASTNode *RelOp();
+ASTNode *SimpleExp();
+ASTNode *SimpleExpPrime();
+ASTNode *AddOp();
+ASTNode *Term();
+ASTNode *TermPrime();
+ASTNode *MulOp();
+ASTNode *Factor();
 
 // 解析 Program -> P → SL
-void Program() {
+ASTNode *Program() {
     if (debug)
         printf("进入：Program\n");
+    ASTNode *node = createNode("Program");
     if (getToken() == IF || getToken() == REPEAT || getToken() == ID || getToken() == READ || getToken() == WRITE) {
-        StmtList();
+        addChild(node, StmtList());
         if (getToken() == DOLLAR) {
             if (debug)
                 printf("匹配：DOLLAR\n");
@@ -165,26 +205,30 @@ void Program() {
     }
     if (debug)
         printf("离开：Program\n");
+    return node;
 }
 
 // 解析 StmtList -> SL → S SL'
-void StmtList() {
+ASTNode *StmtList() {
     if (debug)
         printf("进入：StmtList\n");
-    Stmt();
-    StmtListPrime();
+    ASTNode *node = createNode("StmtList");
+    addChild(node, Stmt());
+    addChild(node, StmtListPrime());
     if (debug)
         printf("离开：StmtList\n");
+    return node;
 }
 
 // 解析 StmtListPrime -> SL' → ; SL' | ε
-void StmtListPrime() {
+ASTNode *StmtListPrime() {
     if (debug)
         printf("进入：StmtListPrime\n");
+    ASTNode *node = createNode("StmtListPrime");
     if (getToken() == SEMI) {
-        match(SEMI);
-        Stmt();
-        StmtListPrime();
+        addChild(node, match(SEMI));
+        addChild(node, Stmt());
+        addChild(node, StmtListPrime());
     } else if (getToken() == END || getToken() == ELSE || getToken() == UNTIL || getToken() == DOLLAR || getToken() == THEN) {
         // SL' -> ε
     } else {
@@ -193,121 +237,139 @@ void StmtListPrime() {
     }
     if (debug)
         printf("离开：StmtListPrime\n");
+    return node;
 }
 
 // 解析 Stmt -> S → I | R | A | RD | W
-void Stmt() {
+ASTNode *Stmt() {
     if (debug)
         printf("进入：Stmt\n");
+    ASTNode *node = createNode("Stmt");
     if (getToken() == IF) {
-        IfStmt();
+        addChild(node, IfStmt());
     } else if (getToken() == REPEAT) {
-        RepeatStmt();
+        addChild(node, RepeatStmt());
     } else if (getToken() == ID) {
-        AssignStmt();
+        addChild(node, AssignStmt());
     } else if (getToken() == READ) {
-        ReadStmt();
+        addChild(node, ReadStmt());
     } else if (getToken() == WRITE) {
-        WriteStmt();
+        addChild(node, WriteStmt());
     } else {
         printf("语法错误：无法识别的语句\n");
         exit(EXIT_FAILURE);
     }
     if (debug)
         printf("离开：Stmt\n");
+    return node;
 }
 
 // 解析 IfStmt -> I → if E then SL I'
-void IfStmt() {
+ASTNode *IfStmt() {
     if (debug)
         printf("进入：IfStmt\n");
-    match(IF);
-    Exp();
-    match(THEN);
-    StmtList();
-    IfStmtPrime();
+    ASTNode *node = createNode("IfStmt");
+    addChild(node, match(IF));
+    addChild(node, Exp());
+    addChild(node, match(THEN));
+    addChild(node, StmtList());
+    addChild(node, IfStmtPrime());
     if (debug)
         printf("离开：IfStmt\n");
+    return node;
 }
 
 // 解析 IfStmtPrime -> I' → end | else SL end
-void IfStmtPrime() {
+ASTNode *IfStmtPrime() {
     if (debug)
         printf("进入：IfStmtPrime\n");
+    ASTNode *node = createNode("IfStmtPrime");
     if (getToken() == END) {
-        match(END);
+        addChild(node, match(END));
     } else if (getToken() == ELSE) {
-        match(ELSE);
-        StmtList();
-        match(END);
+        addChild(node, match(ELSE));
+        addChild(node, StmtList());
+        addChild(node, match(END));
     } else {
         printf("语法错误：期望 end 或 else\n");
         exit(EXIT_FAILURE);
     }
     if (debug)
         printf("离开：IfStmtPrime\n");
+    return node;
 }
 
 // 解析 RepeatStmt -> R → repeat SL until E
-void RepeatStmt() {
+ASTNode *RepeatStmt() {
     if (debug)
         printf("进入：RepeatStmt\n");
-    match(REPEAT);
-    StmtList();
-    match(UNTIL);
-    Exp();
+    ASTNode *node = createNode("RepeatStmt");
+    addChild(node, match(REPEAT));
+    addChild(node, StmtList());
+    addChild(node, match(UNTIL));
+    addChild(node, Exp());
     if (debug)
         printf("离开：RepeatStmt\n");
+    return node;
 }
 
 // 解析 AssignStmt -> A → id := E
-void AssignStmt() {
+ASTNode *AssignStmt() {
     if (debug)
         printf("进入：AssignStmt\n");
-    match(ID);
-    match(ASSIGN);
-    Exp();
+    ASTNode *node = createNode("AssignStmt");
+    addChild(node, match(ID));
+    addChild(node, match(ASSIGN));
+    addChild(node, Exp());
     if (debug)
         printf("离开：AssignStmt\n");
+    return node;
 }
 
 // 解析 ReadStmt -> RD → read id
-void ReadStmt() {
+ASTNode *ReadStmt() {
     if (debug)
         printf("进入：ReadStmt\n");
-    match(READ);
-    match(ID);
+    ASTNode *node = createNode("ReadStmt");
+    addChild(node, match(READ));
+    addChild(node, match(ID));
     if (debug)
         printf("离开：ReadStmt\n");
+    return node;
 }
 
 // 解析 WriteStmt -> W → write E
-void WriteStmt() {
+ASTNode *WriteStmt() {
     if (debug)
         printf("进入：WriteStmt\n");
-    match(WRITE);
-    Exp();
+    ASTNode *node = createNode("WriteStmt");
+    addChild(node, match(WRITE));
+    addChild(node, Exp());
     if (debug)
         printf("离开：WriteStmt\n");
+    return node;
 }
 
 // 解析 Exp -> E → SE E'
-void Exp() {
+ASTNode *Exp() {
     if (debug)
         printf("进入：Exp\n");
-    SimpleExp();
-    ExpPrime();
+    ASTNode *node = createNode("Exp");
+    addChild(node, SimpleExp());
+    addChild(node, ExpPrime());
     if (debug)
         printf("离开：Exp\n");
+    return node;
 }
 
 // 解析 ExpPrime -> E' → RO SE | ε
-void ExpPrime() {
+ASTNode *ExpPrime() {
     if (debug)
         printf("进入：ExpPrime\n");
+    ASTNode *node = createNode("ExpPrime");
     if (getToken() == RELOP) {
-        RelOp();
-        SimpleExp();
+        addChild(node, RelOp());
+        addChild(node, SimpleExp());
     } else if (getToken() == THEN || getToken() == SEMI || getToken() == END || getToken() == ELSE || getToken() == UNTIL || getToken() == RPAREN || getToken() == DOLLAR) {
         // E' -> ε
     } else {
@@ -316,35 +378,41 @@ void ExpPrime() {
     }
     if (debug)
         printf("离开：ExpPrime\n");
+    return node;
 }
 
 // 解析 RelOp -> RO → relop
-void RelOp() {
+ASTNode *RelOp() {
     if (debug)
         printf("进入：RelOp\n");
-    match(RELOP);
+    ASTNode *node = createNode("RelOp");
+    addChild(node, match(RELOP));
     if (debug)
         printf("离开：RelOp\n");
+    return node;
 }
 
 // 解析 SimpleExp -> SE → T SE'
-void SimpleExp() {
+ASTNode *SimpleExp() {
     if (debug)
         printf("进入：SimpleExp\n");
-    Term();
-    SimpleExpPrime();
+    ASTNode *node = createNode("SimpleExp");
+    addChild(node, Term());
+    addChild(node, SimpleExpPrime());
     if (debug)
         printf("离开：SimpleExp\n");
+    return node;
 }
 
 // 解析 SimpleExpPrime -> SE' → AO T SE' | ε
-void SimpleExpPrime() {
+ASTNode *SimpleExpPrime() {
     if (debug)
         printf("进入：SimpleExpPrime\n");
+    ASTNode *node = createNode("SimpleExpPrime");
     if (getToken() == PLUS || getToken() == MINUS) {
-        AddOp();
-        Term();
-        SimpleExpPrime();
+        addChild(node, AddOp());
+        addChild(node, Term());
+        addChild(node, SimpleExpPrime());
     } else if (getToken() == RELOP || getToken() == THEN || getToken() == SEMI || getToken() == END || getToken() == ELSE || getToken() == UNTIL || getToken() == RPAREN || getToken() == DOLLAR) {
         // SE' -> ε
     } else {
@@ -353,42 +421,48 @@ void SimpleExpPrime() {
     }
     if (debug)
         printf("离开：SimpleExpPrime\n");
+    return node;
 }
 
 // 解析 AddOp -> AO → plus | minus
-void AddOp() {
+ASTNode *AddOp() {
     if (debug)
         printf("进入：AddOp\n");
+    ASTNode *node = createNode("AddOp");
     if (getToken() == PLUS) {
-        match(PLUS);
+        addChild(node, match(PLUS));
     } else if (getToken() == MINUS) {
-        match(MINUS);
+        addChild(node, match(MINUS));
     } else {
         printf("语法错误：期望加法操作符\n");
         exit(EXIT_FAILURE);
     }
     if (debug)
         printf("离开：AddOp\n");
+    return node;
 }
 
 // 解析 Term -> T → F T'
-void Term() {
+ASTNode *Term() {
     if (debug)
         printf("进入：Term\n");
-    Factor();
-    TermPrime();
+    ASTNode *node = createNode("Term");
+    addChild(node, Factor());
+    addChild(node, TermPrime());
     if (debug)
         printf("离开：Term\n");
+    return node;
 }
 
 // 解析 TermPrime -> T' → MO F T' | ε
-void TermPrime() {
+ASTNode *TermPrime() {
     if (debug)
         printf("进入：TermPrime\n");
+    ASTNode *node = createNode("TermPrime");
     if (getToken() == TIMES || getToken() == OVER) {
-        MulOp();
-        Factor();
-        TermPrime();
+        addChild(node, MulOp());
+        addChild(node, Factor());
+        addChild(node, TermPrime());
     } else if (getToken() == PLUS || getToken() == MINUS || getToken() == RELOP || getToken() == THEN || getToken() == SEMI || getToken() == END || getToken() == ELSE || getToken() == UNTIL || getToken() == RPAREN || getToken() == DOLLAR) {
         // T' -> ε
     } else {
@@ -397,56 +471,78 @@ void TermPrime() {
     }
     if (debug)
         printf("离开：TermPrime\n");
+    return node;
 }
 
 // 解析 MulOp -> MO → times | over
-void MulOp() {
+ASTNode *MulOp() {
     if (debug)
         printf("进入：MulOp\n");
+    ASTNode *node = createNode("MulOp");
     if (getToken() == TIMES) {
-        match(TIMES);
+        addChild(node, match(TIMES));
     } else if (getToken() == OVER) {
-        match(OVER);
+        addChild(node, match(OVER));
     } else {
         printf("语法错误：期望乘法操作符\n");
         exit(EXIT_FAILURE);
     }
     if (debug)
         printf("离开：MulOp\n");
+    return node;
 }
 
 // 解析 Factor -> F → (E) | id | num
-void Factor() {
+ASTNode *Factor() {
     if (debug)
         printf("进入：Factor\n");
+    ASTNode *node = createNode("Factor");
     if (getToken() == LPAREN) {
-        match(LPAREN);
-        Exp();
-        match(RPAREN);
+        addChild(node, match(LPAREN));
+        addChild(node, Exp());
+        addChild(node, match(RPAREN));
     } else if (getToken() == ID) {
-        match(ID);
+        addChild(node, match(ID));
     } else if (getToken() == NUM) {
-        match(NUM);
+        addChild(node, match(NUM));
     } else {
         printf("语法错误：无法识别的因子\n");
         exit(EXIT_FAILURE);
     }
     if (debug)
         printf("离开：Factor\n");
+    return node;
 }
 
 int main(int argc, char *argv[]) {
-    if (argc < 2 || argc > 3) {
-        printf("用法：%s <词法分析器输出文件> [-d]\n", argv[0]);
+    if (argc < 2 || argc > 4) {
+        printf("用法：%s <词法分析器输出文件> [-d] [-AST ast.dot]\n", argv[0]);
         return 1;
     }
 
-    if (argc == 3 && strcmp(argv[2], "-d") == 0) {
-        debug = 1;
+    char *astFilePath = NULL;
+    for (int i = 2; i < argc; i++) {
+        if (strcmp(argv[i], "-d") == 0) {
+            debug = 1;
+        } else if (strcmp(argv[i], "-AST") == 0 && i + 1 < argc) {
+            astFilePath = argv[++i];
+        }
     }
 
     readTokens(argv[1]);
-    Program();
+    ASTNode *root = Program();
+
+    if (astFilePath) {
+        FILE *astFile = fopen(astFilePath, "w");
+        if (!astFile) {
+            perror("无法打开AST输出文件");
+            return 1;
+        }
+        fprintf(astFile, "digraph AST {\n");
+        printAST(root, astFile);
+        fprintf(astFile, "}\n");
+        fclose(astFile);
+    }
 
     return 0;
 }
