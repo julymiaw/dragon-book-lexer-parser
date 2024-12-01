@@ -4,32 +4,32 @@
 #include <stdlib.h>
 
 typedef enum {
-    READ,
-    ID,
-    SEMI,
     IF,
-    NUM,
-    RELOP,
     THEN,
-    ASSIGN,
-    REPEAT,
-    TIMES,
-    UNTIL,
-    WRITE,
-    MINUS,
-    DOLLAR,
-    END,
     ELSE,
-    COMMENT,
+    END,
+    REPEAT,
+    UNTIL,
+    READ,
+    WRITE,
+    ID,
+    NUM,
+    ASSIGN,
+    RELOP,
     PLUS,
+    MINUS,
+    TIMES,
     OVER,
     LPAREN,
-    RPAREN
+    RPAREN,
+    SEMI,
+    DELIMETER,
+    COMMENT
 } TokenType;
 
 void printToken(TokenType token, const char *attr) {
     const char *tokenNames[] = {
-        "READ", "ID", "SEMI", "IF", "NUM", "RELOP", "THEN", "ASSIGN", "REPEAT", "TIMES", "UNTIL", "WRITE", "MINUS", "DOLLAR", "END", "ELSE", "COMMENT", "PLUS", "OVER", "LPAREN", "RPAREN"};
+        "IF", "THEN", "ELSE", "END", "REPEAT", "UNTIL", "READ", "WRITE", "ID", "NUM", "ASSIGN", "RELOP", "PLUS", "MINUS", "TIMES", "OVER", "LPAREN", "RPAREN", "SEMI", "DELIMETER", "COMMENT"};
     printf("%s\t%s\n", tokenNames[token], attr);
 }
 

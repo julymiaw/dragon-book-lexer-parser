@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <title>First and Follow 集</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+        }
+
+        table {
+            width: 70%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+    <table>
+        <tr>
+            <th>非终结符</th>
+            <th>缩写</th>
+            <th>文法表达式</th>
+            <th>First 集</th>
+            <th>Follow 集</th>
+        </tr>
+        <tr>
+            <td>Program</td>
+            <td>P</td>
+            <td>P -> SL</td>
+            <td>if</br>repeat</br>id</br>read</br>write</td>
+            <td>$</td>
+        </tr>
+        <tr>
+            <td>StmtList</td>
+            <td>SL</td>
+            <td>SL -> S SL'</td>
+            <td>if</br>repeat</br>id</br>read</br>write</td>
+            <td>$</br>end</br>else</br>until</td>
+        </tr>
+        <tr>
+            <td rowspan="2">StmtList'</td>
+            <td rowspan="2">SL'</td>
+            <td>SL' -> ; SL</td>
+            <td>;</td>
+            <td rowspan="2">$</br>end</br>else</br>until</td>
+        </tr>
+        <tr>
+            <td>SL' -> ε</td>
+            <td>$</br>end</br>else</br>until</td>
+        </tr>
+        <tr>
+            <td rowspan="5">Stmt</td>
+            <td rowspan="5">S</td>
+            <td>S -> I</td>
+            <td>if</td>
+            <td rowspan="5">;</br>$</br>end</br>else</br>until</td>
+        </tr>
+        <tr>
+            <td>S -> R</td>
+            <td>repeat</td>
+        </tr>
+        <tr>
+            <td>S -> A</td>
+            <td>id</td>
+        </tr>
+        <tr>
+            <td>S -> RD</td>
+            <td>read</td>
+        </tr>
+        <tr>
+            <td>S -> W</td>
+            <td>write</td>
+        </tr>
+        <tr>
+            <td>IfStmt</td>
+            <td>I</td>
+            <td>I -> if E then SL I'</td>
+            <td>if</td>
+            <td>;</br>$</br>end</br>else</br>until</td>
+        </tr>
+        <tr>
+            <td rowspan="2">IfStmt'</td>
+            <td rowspan="2">I'</td>
+            <td>I' -> end</td>
+            <td>end</td>
+            <td rowspan="2">;</br>$</br>end</br>else</br>until</td>
+        </tr>
+        <tr>
+            <td>I' -> else SL end</td>
+            <td>else</td>
+        </tr>
+        <tr>
+            <td>RepeatStmt</td>
+            <td>R</td>
+            <td>R -> repeat SL until E</td>
+            <td>repeat</td>
+            <td>;</br>$</br>end</br>else</br>until</td>
+        </tr>
+        <tr>
+            <td>AssignStmt</td>
+            <td>A</td>
+            <td>A -> id := E</td>
+            <td>id</td>
+            <td>;</br>$</br>end</br>else</br>until</td>
+        </tr>
+        <tr>
+            <td>ReadStmt</td>
+            <td>RD</td>
+            <td>RD -> read id</td>
+            <td>read</td>
+            <td>;</br>$</br>end</br>else</br>until</td>
+        </tr>
+        <tr>
+            <td>WriteStmt</td>
+            <td>W</td>
+            <td>W -> write E</td>
+            <td>write</td>
+            <td>;</br>$</br>end</br>else</br>until</td>
+        </tr>
+        <tr>
+            <td>Exp</td>
+            <td>E</td>
+            <td>E -> SE E'</td>
+            <td>(</br>id</br>num</td>
+            <td>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
+        </tr>
+        <tr>
+            <td rowspan="2">Exp'</td>
+            <td rowspan="2">E'</td>
+            <td>E' -> RO SE</td>
+            <td>relop</td>
+            <td rowspan="2">then</br>;</br>$</br>end</br>else</br>until</br>)</td>
+        </tr>
+        <tr>
+            <td>E' -> ε</td>
+            <td>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
+        </tr>
+        <tr>
+            <td>RelOp</td>
+            <td>RO</td>
+            <td>RO -> relop</td>
+            <td>relop</td>
+            <td>(</br>id</br>num</td>
+        </tr>
+        <tr>
+            <td>SimpleExp</td>
+            <td>SE</td>
+            <td>SE -> T SE'</td>
+            <td>(</br>id</br>num</td>
+            <td>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
+        </tr>
+        <tr>
+            <td rowspan="2">SimpleExp'</td>
+            <td rowspan="2">SE'</td>
+            <td>SE' -> AO T SE'</td>
+            <td>plus</br>minus</td>
+            <td rowspan="2">then</br>;</br>$</br>end</br>else</br>until</br>)</td>
+        </tr>
+        <tr>
+            <td>SE' -> ε</td>
+            <td>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
+        </tr>
+        <tr>
+            <td rowspan="2">AddOp</td>
+            <td rowspan="2">AO</td>
+            <td>AO -> plus</td>
+            <td>plus</td>
+            <td rowspan="2">(</br>id</br>num</td>
+        </tr>
+        <tr>
+            <td>AO -> minus</td>
+            <td>minus</td>
+        </tr>
+        <tr>
+            <td>Term</td>
+            <td>T</td>
+            <td>T -> F T'</td>
+            <td>(</br>id</br>num</td>
+            <td>plus</br>minus</br>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
+        </tr>
+        <tr>
+            <td rowspan="2">Term'</td>
+            <td rowspan="2">T'</td>
+            <td>T' -> MO F T'</td>
+            <td>times</br>over</td>
+            <td rowspan="2">plus</br>minus</br>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
+        </tr>
+        <tr>
+            <td>T' -> ε</td>
+            <td>plus</br>minus</br>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
+        </tr>
+        <tr>
+            <td rowspan="2">MulOp</td>
+            <td rowspan="2">MO</td>
+            <td>MO -> times</td>
+            <td>times</td>
+            <td rowspan="2">(</br>id</br>num</td>
+        </tr>
+        <tr>
+            <td>MO -> over</td>
+            <td>over</td>
+        </tr>
+        <tr>
+            <td rowspan="3">Factor</td>
+            <td rowspan="3">F</td>
+            <td>F -> ( E )</td>
+            <td>(</td>
+            <td rowspan="3">times</br>over</br>plus</br>minus</br>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
+        </tr>
+        <tr>
+            <td>F -> id</td>
+            <td>id</td>
+        </tr>
+        <tr>
+            <td>F -> num</td>
+            <td>num</td>
+        </tr>
+    </table>
+</body>
+
+</html>

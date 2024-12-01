@@ -95,21 +95,21 @@ digraph finite_state_machine {
     size="8,5"
     node [shape = doublecircle]; 1 2 3 4 5 6 7 8 9 10 11;
     node [shape = circle];
-    0 -> 0 [label="space, \\t, \\n, \\r"];
-    0 -> 1 [label="letter"];
-    1 -> 1 [label="letter | digit"];
-    0 -> 2 [label="digit"];
-    2 -> 2 [label="digit"];
-    2 -> 3 [label="."];
-    3 -> 3 [label="digit"];
-    0 -> 4 [label="( | ) | ;"];
-    0 -> 5 [label=":"];
-    5 -> 6 [label="="];
-    0 -> 7 [label="= | + | - | * | /"];
-    0 -> 8 [label="<"];
-    8 -> 9 [label="> | ="];
-    0 -> 10 [label=">"];
-    10 -> 11 [label="="];
+    0 → 0 [label="space, \\t, \\n, \\r"];
+    0 → 1 [label="letter"];
+    1 → 1 [label="letter | digit"];
+    0 → 2 [label="digit"];
+    2 → 2 [label="digit"];
+    2 → 3 [label="."];
+    3 → 3 [label="digit"];
+    0 → 4 [label="( | ) | ;"];
+    0 → 5 [label=":"];
+    5 → 6 [label="="];
+    0 → 7 [label="= | + | - | * | /"];
+    0 → 8 [label="<"];
+    8 → 9 [label="> | ="];
+    0 → 10 [label=">"];
+    10 → 11 [label="="];
 }
 ```
 
@@ -504,45 +504,45 @@ if (c == '*') {
 LL(1) 文法需要先提取左公因子。以下是提取左公因子后的文法：
 
 ```plaintext
-P -> SL
+P → SL
 
-SL -> S SL'
+SL → S SL'
 
-SL' -> ; SL | ε
+SL' → ; SL | ε
 
-S -> I | R | A | RD | W
+S → I | R | A | RD | W
 
-I -> if E then SL I'
+I → if E then SL I'
 
-I' -> end | else SL end
+I' → end | else SL end
 
-R -> repeat SL until E
+R → repeat SL until E
 
-A -> id := E
+A → id := E
 
-RD -> read id
+RD → read id
 
-W -> write E
+W → write E
 
-E -> SE E'
+E → SE E'
 
-E' -> RO SE | ε
+E' → RO SE | ε
 
-RO -> relop
+RO → relop
 
-SE -> T SE'
+SE → T SE'
 
-SE' -> AO T SE' | ε
+SE' → AO T SE' | ε
 
-AO -> plus | minus
+AO → plus | minus
 
-T -> F T'
+T → F T'
 
-T' -> MO F T' | ε
+T' → MO F T' | ε
 
-MO -> times | over
+MO → times | over
 
-F -> ( E ) | id | num
+F → ( E ) | id | num
 ```
 
 ### First 集和 Follow 集
@@ -560,193 +560,193 @@ F -> ( E ) | id | num
     <tr>
         <td>Program</td>
         <td>P</td>
-        <td>P -> SL</td>
+        <td>P → SL</td>
         <td>if</br>repeat</br>id</br>read</br>write</td>
         <td>$</td>
     </tr>
     <tr>
         <td>StmtList</td>
         <td>SL</td>
-        <td>SL -> S SL'</td>
+        <td>SL → S SL'</td>
         <td>if</br>repeat</br>id</br>read</br>write</td>
         <td>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td rowspan="2">StmtList'</td>
         <td rowspan="2">SL'</td>
-        <td>SL' -> ; SL</td>
+        <td>SL' → ; SL</td>
         <td>;</td>
         <td rowspan="2">$</br>end</br>else</br>until</td>
     </tr>
     <tr>
-        <td>SL' -> ε</td>
+        <td>SL' → ε</td>
         <td>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td rowspan="5">Stmt</td>
         <td rowspan="5">S</td>
-        <td>S -> I</td>
+        <td>S → I</td>
         <td>if</td>
         <td rowspan="5">;</br>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
-        <td>S -> R</td>
+        <td>S → R</td>
         <td>repeat</td>
     </tr>
     <tr>
-        <td>S -> A</td>
+        <td>S → A</td>
         <td>id</td>
     </tr>
     <tr>
-        <td>S -> RD</td>
+        <td>S → RD</td>
         <td>read</td>
     </tr>
     <tr>
-        <td>S -> W</td>
+        <td>S → W</td>
         <td>write</td>
     </tr>
     <tr>
         <td>IfStmt</td>
         <td>I</td>
-        <td>I -> if E then SL I'</td>
+        <td>I → if E then SL I'</td>
         <td>if</td>
         <td>;</br>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td rowspan="2">IfStmt'</td>
         <td rowspan="2">I'</td>
-        <td>I' -> end</td>
+        <td>I' → end</td>
         <td>end</td>
         <td rowspan="2">;</br>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
-        <td>I' -> else SL end</td>
+        <td>I' → else SL end</td>
         <td>else</td>
     </tr>
     <tr>
         <td>RepeatStmt</td>
         <td>R</td>
-        <td>R -> repeat SL until E</td>
+        <td>R → repeat SL until E</td>
         <td>repeat</td>
         <td>;</br>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td>AssignStmt</td>
         <td>A</td>
-        <td>A -> id := E</td>
+        <td>A → id := E</td>
         <td>id</td>
         <td>;</br>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td>ReadStmt</td>
         <td>RD</td>
-        <td>RD -> read id</td>
+        <td>RD → read id</td>
         <td>read</td>
         <td>;</br>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td>WriteStmt</td>
         <td>W</td>
-        <td>W -> write E</td>
+        <td>W → write E</td>
         <td>write</td>
         <td>;</br>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td>Exp</td>
         <td>E</td>
-        <td>E -> SE E'</td>
+        <td>E → SE E'</td>
         <td>(</br>id</br>num</td>
         <td>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
         <td rowspan="2">Exp'</td>
         <td rowspan="2">E'</td>
-        <td>E' -> RO SE</td>
+        <td>E' → RO SE</td>
         <td>relop</td>
         <td rowspan="2">then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
-        <td>E' -> ε</td>
+        <td>E' → ε</td>
         <td>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
         <td>RelOp</td>
         <td>RO</td>
-        <td>RO -> relop</td>
+        <td>RO → relop</td>
         <td>relop</td>
         <td>(</br>id</br>num</td>
     </tr>
     <tr>
         <td>SimpleExp</td>
         <td>SE</td>
-        <td>SE -> T SE'</td>
+        <td>SE → T SE'</td>
         <td>(</br>id</br>num</td>
         <td>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
         <td rowspan="2">SimpleExp'</td>
         <td rowspan="2">SE'</td>
-        <td>SE' -> AO T SE'</td>
+        <td>SE' → AO T SE'</td>
         <td>plus</br>minus</td>
         <td rowspan="2">then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
-        <td>SE' -> ε</td>
+        <td>SE' → ε</td>
         <td>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
         <td rowspan="2">AddOp</td>
         <td rowspan="2">AO</td>
-        <td>AO -> plus</td>
+        <td>AO → plus</td>
         <td>plus</td>
         <td rowspan="2">(</br>id</br>num</td>
     </tr>
     <tr>
-        <td>AO -> minus</td>
+        <td>AO → minus</td>
         <td>minus</td>
     </tr>
     <tr>
         <td>Term</td>
         <td>T</td>
-        <td>T -> F T'</td>
+        <td>T → F T'</td>
         <td>(</br>id</br>num</td>
         <td>plus</br>minus</br>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
         <td rowspan="2">Term'</td>
         <td rowspan="2">T'</td>
-        <td>T' -> MO F T'</td>
+        <td>T' → MO F T'</td>
         <td>times</br>over</td>
         <td rowspan="2">plus</br>minus</br>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
-        <td>T' -> ε</td>
+        <td>T' → ε</td>
         <td>plus</br>minus</br>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
         <td rowspan="2">MulOp</td>
         <td rowspan="2">MO</td>
-        <td>MO -> times</td>
+        <td>MO → times</td>
         <td>times</td>
         <td rowspan="2">(</br>id</br>num</td>
     </tr>
     <tr>
-        <td>MO -> over</td>
+        <td>MO → over</td>
         <td>over</td>
     </tr>
     <tr>
         <td rowspan="3">Factor</td>
         <td rowspan="3">F</td>
-        <td>F -> ( E )</td>
+        <td>F → ( E )</td>
         <td>(</td>
         <td rowspan="3">times</br>over</br>plus</br>minus</br>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
-        <td>F -> id</td>
+        <td>F → id</td>
         <td>id</td>
     </tr>
     <tr>
-        <td>F -> num</td>
+        <td>F → num</td>
         <td>num</td>
     </tr>
 </table>
@@ -754,3 +754,26 @@ F -> ( E ) | id | num
 ## LL(1) 分析表
 
 以下是根据之前定义的 LL(1) 文法构建的 LL(1) 分析表：
+
+|         | if                | repeat              | id          | read        | write       | ;        | end    | else           | until | relop    | plus         | minus        | times      | over       | (          | )     | num        | :=   | then  | $     |
+| ------- | ----------------- | ------------------- | ----------- | ----------- | ----------- | -------- | ------ | -------------- | ----- | -------- | ------------ | ------------ | ---------- | ---------- | ---------- | ----- | ---------- | ---- | ----- | ----- |
+| **P**   | P→SL              | P→SL                | P→SL        | P→SL        | P→SL        |          |        |                |       |          |              |              |            |            |            |       |            |      |       |       |
+| **SL**  | SL -> S SL'       | SL -> S SL'         | SL -> S SL' | SL -> S SL' | SL -> S SL' |          |        |                |       |          |              |              |            |            |            |       |            |      |       |       |
+| **SL'** |                   |                     |             |             |             | SL'→;SL' | SL'→ε  | SL'→ε          | SL'→ε |          |              |              |            |            |            |       |            |      |       | SL'→ε |
+| **S**   | S→I               | S→R                 | S→A         | S→RD        | S→W         |          |        |                |       |          |              |              |            |            |            |       |            |      |       |       |
+| **I**   | I→if E then SL I' |                     |             |             |             |          |        |                |       |          |              |              |            |            |            |       |            |      |       |       |
+| **I'**  |                   |                     |             |             |             |          | I'→end | I'→else SL end |       |          |              |              |            |            |            |       |            |      |       |       |
+| **R**   |                   | R→repeat SL until E |             |             |             |          |        |                |       |          |              |              |            |            |            |       |            |      |       |       |
+| **A**   |                   |                     | A→id := E   |             |             |          |        |                |       |          |              |              |            |            |            |       |            |      |       |       |
+| **RD**  |                   |                     |             | RD→read id  |             |          |        |                |       |          |              |              |            |            |            |       |            |      |       |       |
+| **W**   |                   |                     |             |             | W→write E   |          |        |                |       |          |              |              |            |            |            |       |            |      |       |       |
+| **E**   |                   |                     | E -> SE E'  |             |             |          |        |                |       |          |              |              |            |            | E -> SE E' |       | E -> SE E' |      |       |       |
+| **E'**  |                   |                     |             |             |             | E'→ε     | E'→ε   | E'→ε           | E'→ε  | E'→RO SE |              |              |            |            |            | E'→ε  |            |      | E'→ε  | E'→ε  |
+| **RO**  |                   |                     |             |             |             |          |        |                |       | RO→relop |              |              |            |            |            |       |            |      |       |       |
+| **SE**  |                   |                     | SE→T SE'    |             |             |          |        |                |       |          |              |              |            |            | SE→T SE'   |       | SE→T SE'   |      |       |       |
+| **SE'** |                   |                     |             |             |             | SE'→ε    | SE'→ε  | SE'→ε          | SE'→ε |          | SE'→AO T SE' | SE'→AO T SE' |            |            |            | SE'→ε |            |      | SE'→ε | SE'→ε |
+| **AO**  |                   |                     |             |             |             |          |        |                |       |          | AO→plus      | AO→minus     |            |            |            |       |            |      |       |       |
+| **T**   |                   |                     | T→F T'      |             |             |          |        |                |       |          |              |              |            |            | T→F T'     |       | T→F T'     |      |       |       |
+| **T'**  |                   |                     |             |             |             | T'→ε     | T'→ε   | T'→ε           | T'→ε  |          | T'→ε         | T'→ε         | T'→MO F T' | T'→MO F T' |            | T'→ε  |            |      | T'→ε  | T'→ε  |
+| **MO**  |                   |                     |             |             |             |          |        |                |       |          |              |              | MO→times   | MO→over    |            |       |            |      |       |       |
+| **F**   |                   |                     | F→id        |             |             |          |        |                |       |          |              |              |            |            | F→(E)      |       | F→num      |      |       |       |
