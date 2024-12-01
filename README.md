@@ -561,63 +561,63 @@ F -> ( E ) | id | num
         <td>Program</td>
         <td>P</td>
         <td>P -> SL</td>
-        <td>First(SL)</td>
+        <td>if</br>repeat</br>id</br>read</br>write</td>
         <td>$</td>
     </tr>
     <tr>
         <td>StmtList</td>
         <td>SL</td>
         <td>SL -> S SL'</td>
-        <td>First(S)</td>
-        <td>Follow(P)</br>Follow(SL')</br>First(I')</br>end</br>until</td>
+        <td>if</br>repeat</br>id</br>read</br>write</td>
+        <td>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td rowspan="2">StmtList'</td>
         <td rowspan="2">SL'</td>
         <td>SL' -> ; SL</td>
         <td>;</td>
-        <td rowspan="2">Follow(SL)</td>
+        <td rowspan="2">$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td>SL' -> ε</td>
-        <td>Follow(SL')</td>
+        <td>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td rowspan="5">Stmt</td>
         <td rowspan="5">S</td>
         <td>S -> I</td>
-        <td>First(I)</td>
-        <td rowspan="5">First(SL')</td>
+        <td>if</td>
+        <td rowspan="5">;</br>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td>S -> R</td>
-        <td>First(R)</td>
+        <td>repeat</td>
     </tr>
     <tr>
         <td>S -> A</td>
-        <td>First(A)</td>
+        <td>id</td>
     </tr>
     <tr>
         <td>S -> RD</td>
-        <td>First(RD)</td>
+        <td>read</td>
     </tr>
     <tr>
         <td>S -> W</td>
-        <td>First(W)</td>
+        <td>write</td>
     </tr>
     <tr>
         <td>IfStmt</td>
         <td>I</td>
         <td>I -> if E then SL I'</td>
         <td>if</td>
-        <td>Follow(S)</td>
+        <td>;</br>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td rowspan="2">IfStmt'</td>
         <td rowspan="2">I'</td>
         <td>I' -> end</td>
         <td>end</td>
-        <td rowspan="2">Follow(I)</td>
+        <td rowspan="2">;</br>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td>I' -> else SL end</td>
@@ -628,78 +628,78 @@ F -> ( E ) | id | num
         <td>R</td>
         <td>R -> repeat SL until E</td>
         <td>repeat</td>
-        <td>Follow(S)</td>
+        <td>;</br>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td>AssignStmt</td>
         <td>A</td>
         <td>A -> id := E</td>
         <td>id</td>
-        <td>Follow(S)</td>
+        <td>;</br>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td>ReadStmt</td>
         <td>RD</td>
         <td>RD -> read id</td>
         <td>read</td>
-        <td>Follow(S)</td>
+        <td>;</br>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td>WriteStmt</td>
         <td>W</td>
         <td>W -> write E</td>
         <td>write</td>
-        <td>Follow(S)</td>
+        <td>;</br>$</br>end</br>else</br>until</td>
     </tr>
     <tr>
         <td>Exp</td>
         <td>E</td>
         <td>E -> SE E'</td>
-        <td>First(SE)</td>
-        <td>then</br>Follow(R)</br>Follow(A)</br>Follow(W)</br>)</td>
+        <td>(</br>id</br>num</td>
+        <td>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
         <td rowspan="2">Exp'</td>
         <td rowspan="2">E'</td>
         <td>E' -> RO SE</td>
-        <td>First(RO)</td>
-        <td rowspan="2">Follow(E)</td>
+        <td>relop</td>
+        <td rowspan="2">then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
         <td>E' -> ε</td>
-        <td>Follow(E')</td>
+        <td>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
         <td>RelOp</td>
         <td>RO</td>
         <td>RO -> relop</td>
         <td>relop</td>
-        <td>First(SE)</td>
+        <td>(</br>id</br>num</td>
     </tr>
     <tr>
         <td>SimpleExp</td>
         <td>SE</td>
         <td>SE -> T SE'</td>
-        <td>First(T)</td>
-        <td>Follow(E')</td>
+        <td>(</br>id</br>num</td>
+        <td>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
         <td rowspan="2">SimpleExp'</td>
         <td rowspan="2">SE'</td>
         <td>SE' -> AO T SE'</td>
-        <td>First(AO)</td>
-        <td rowspan="2">Follow(SE)</td>
+        <td>plus</br>minus</td>
+        <td rowspan="2">then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
         <td>SE' -> ε</td>
-        <td>Follow(SE')</td>
+        <td>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
         <td rowspan="2">AddOp</td>
         <td rowspan="2">AO</td>
         <td>AO -> plus</td>
         <td>plus</td>
-        <td rowspan="2">First(T)</td>
+        <td rowspan="2">(</br>id</br>num</td>
     </tr>
     <tr>
         <td>AO -> minus</td>
@@ -709,26 +709,26 @@ F -> ( E ) | id | num
         <td>Term</td>
         <td>T</td>
         <td>T -> F T'</td>
-        <td>First(F)</td>
-        <td>First(SE')</td>
+        <td>(</br>id</br>num</td>
+        <td>plus</br>minus</br>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
         <td rowspan="2">Term'</td>
         <td rowspan="2">T'</td>
         <td>T' -> MO F T'</td>
-        <td>First(MO)</td>
-        <td rowspan="2">Follow(T)</td>
+        <td>times</br>over</td>
+        <td rowspan="2">plus</br>minus</br>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
         <td>T' -> ε</td>
-        <td>Follow(T')</td>
+        <td>plus</br>minus</br>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
         <td rowspan="2">MulOp</td>
         <td rowspan="2">MO</td>
         <td>MO -> times</td>
         <td>times</td>
-        <td rowspan="2">First(F)</td>
+        <td rowspan="2">(</br>id</br>num</td>
     </tr>
     <tr>
         <td>MO -> over</td>
@@ -739,7 +739,7 @@ F -> ( E ) | id | num
         <td rowspan="3">F</td>
         <td>F -> ( E )</td>
         <td>(</td>
-        <td rowspan="3">First(T')</td>
+        <td rowspan="3">times</br>over</br>plus</br>minus</br>then</br>;</br>$</br>end</br>else</br>until</br>)</td>
     </tr>
     <tr>
         <td>F -> id</td>
