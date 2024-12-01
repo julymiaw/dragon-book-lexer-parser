@@ -1,5 +1,5 @@
 read x; // input x
-if 0 < x then /* compute when x>0 *x */
+if 0 < x then /* compute when x>0 */
   fact := 1;
   repeat
     fact := fact * X;

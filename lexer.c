@@ -134,10 +134,8 @@ void processFile(const char *filePath) {
                 bufferIndex = 0;
                 buffer[bufferIndex++] = '/';
                 buffer[bufferIndex++] = '/';
-                c = fgetc(file);
-                while (c != '\n' && c != EOF) {
+                while ((c = fgetc(file)) != '\n' && c != EOF) {
                     buffer[bufferIndex++] = c;
-                    c = fgetc(file);
                 }
                 buffer[bufferIndex] = '\0';
                 strcat(annotations, buffer);
@@ -149,12 +147,18 @@ void processFile(const char *filePath) {
                 buffer[bufferIndex++] = '*';
                 while (1) {
                     c = fgetc(file);
-                    buffer[bufferIndex++] = c;
-                    if (c == '*' && (c = fgetc(file)) == '/') {
-                        buffer[bufferIndex++] = '/';
+                    if (c == EOF) {
                         break;
-                    } else {
-                        ungetc(c, file);
+                    }
+                    buffer[bufferIndex++] = c;
+                    if (c == '*') {
+                        c = fgetc(file);
+                        if (c == '/') {
+                            buffer[bufferIndex++] = '/';
+                            break;
+                        } else {
+                            ungetc(c, file);
+                        }
                     }
                 }
                 buffer[bufferIndex] = '\0';
